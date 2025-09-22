@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import ads.mov.ui.theme.MyApplicationTheme
-import android.view.Surface
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -21,23 +21,24 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Scaffold( modifier = Modifier.fillMaxSize() ) {
+                    HidratacaoComEstado()
                 }
             }
         }
@@ -70,7 +71,8 @@ fun Hidratacao(modifier: Modifier = Modifier) {
            )
            Button(
                modifier = Modifier.fillMaxWidth(),
-               onClick = { contador++ }
+               onClick = { contador++ },
+               enabled = contador < 10
            ) {
                Text(
                    text ="Beber Agua"
@@ -78,7 +80,6 @@ fun Hidratacao(modifier: Modifier = Modifier) {
            }
        }
     }
-
 }
 
 @Preview
@@ -86,6 +87,33 @@ fun Hidratacao(modifier: Modifier = Modifier) {
 private fun PP() {
     Hidratacao()
 }
+
+
+@Composable
+fun HidratacaoSemEstado(
+    contador: Int,
+    onValueChange: () -> Unit,
+    modifier: Modifier = Modifier
+){
+  Column(modifier = modifier.padding(16.dp)) {
+      Text("Você bebeu $contador copos hoje!")
+      Button(
+          onClick = { onValueChange() }, enabled = contador < 10
+      ) {
+          Text("Beber")
+      }
+  }
+}
+@Composable
+fun HidratacaoComEstado(modifier: Modifier = Modifier){
+    var contadorAgua by rememberSaveable { mutableIntStateOf(0) }
+    var contadorSuco by rememberSaveable { mutableIntStateOf(0) }
+    Column(modifier = modifier.fillMaxSize()) {
+        HidratacaoSemEstado(contador = contadorAgua, onValueChange = { contadorAgua++ })
+        HidratacaoSemEstado(contador = contadorSuco, onValueChange = { contadorSuco++ } )
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
